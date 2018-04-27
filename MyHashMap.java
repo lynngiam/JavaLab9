@@ -1,4 +1,5 @@
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,8 +10,6 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
     LinkedList<Map.Entry<K, V>>[] table;
     int size; // current number of items in the table (not number of buckets)
     private int capacity;
-    double maxLoadFactor = size / capacity; // load factor = (number of keys in the table) / (number of slots in the
-					    // table)
     float userMaxLoadFactor;
 
     MyHashMap(int capacity, float maxLoadFactor) {
@@ -29,19 +28,24 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
     public V put(K key, V value) {
 	// TODO Auto-generated method stub
 	V retValue = null;
+	boolean keyPresent = false;
 	if (value == null || key == null) { // if value or key is null, throw exception
 	    throw new NullPointerException();
 	}
-	int hashKey = Math.abs(key.hashCode()) % size;
-	if (table[hashKey].contains(key)) { // if key is present
-	    int index = table[hashKey].indexOf(key);
-	    retValue = table[hashKey].get(index).getValue(); // get original value
-	    table[hashKey].get(index).setValue(value); // set new value
-	} else {
+	int hashKey = Math.abs(key.hashCode()) % capacity;
+	System.out.print(hashKey);
+	for (Map.Entry<K, V> entries : table[hashKey]) {
+	    if (entries.getKey().equals(key)) {
+		keyPresent = true;// if key is present
+		entries.setValue(value);
+	    } // set new value
+	}
+	if (!keyPresent) {
 	    table[hashKey].add(new AbstractMap.SimpleEntry<K, V>(key, value)); // create new node for key and value pair
 	    size++; // increment size
 	}
-	if (maxLoadFactor > userMaxLoadFactor) {
+	if ((size / capacity) > userMaxLoadFactor) {
+	    System.out.println("Resize");
 	    resize();
 	}
 	// TODO write resize when maxLoadFactor is met
@@ -53,15 +57,15 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
     public V get(K key) {
 	// TODO Auto-generated method stub
 	V retValue = null;
-	int hashKey = Math.abs(key.hashCode()) % size;
-	if (table[hashKey].contains(key)) { // check if key is present
-	    int index = table[hashKey].indexOf(key);
-	    retValue = table[hashKey].get(index).getValue(); // get original value
+	int hashKey = Math.abs(key.hashCode()) % capacity;
+	for (Map.Entry<K, V> entries : table[hashKey]) {
+	    if (entries.getKey().equals(key)) { // check if key is present
+		retValue = entries.getValue(); // get original value
+	    }
 	}
 	return retValue;
     }
 
-    @Override
     public boolean isEmpty() {
 	// TODO Auto-generated method stub
 	if (size == 0) {
@@ -70,7 +74,6 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
 	return false;
     }
 
-    @Override
     public void clear() {
 	// TODO Auto-generated method stub
 	for (int i = 0; i < table.length; i++) {
@@ -79,10 +82,23 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
 	size = 0;
     }
 
-    @Override
     public int size() {
 	// TODO Auto-generated method stub
 	return size;
+    }
+
+    public String toString() {
+	String s;
+	List<String> toStringList = new ArrayList<String>();
+	for (int i = 0; i < table.length; i++) {
+	    if (table[i] != null) {
+		for (Map.Entry<K, V> entries : table[i]) {
+		    s = "Hash code: " + i + " | Keys: " + entries.getKey() + " | Value: " + entries.getValue();
+		    toStringList.add(s);
+		}
+	    }
+	}
+	return toStringList.toString();
     }
 
     public Iterator<K> keys() {

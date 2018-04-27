@@ -150,24 +150,17 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
 
     }
 
-    private int generatePrime(int i) {
-	boolean testPrime = false;
-	int prime = 2 * i - 1;
-	while (!testPrime) {
-	    prime++;
-	    if (prime % Math.sqrt(prime) == 0) {
-		continue;
-	    } else {
-		int division = 2;
-		while (division < prime) {
-		    if ((prime % division) != 0 && !(division < Math.sqrt(prime))) {
-			testPrime = true;
-			break;
-		    } else {
-			division++;
-		    }
+    public int generatePrime(int i) {
+	int testPrime = 0;
+	int prime = 2 * i;
+	while (testPrime < 2) {
+	    System.out.println("in loop");
+	    for (int j = 2; j < prime; j++) {
+		if (prime % j == 0) {
+		    testPrime = 1;b 
 		}
 	    }
+	    prime++;
 	}
 	return prime;
     }

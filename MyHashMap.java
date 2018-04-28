@@ -4,16 +4,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class MyHashMap<K, V> implements MapADT<K, V> {
     LinkedList<Map.Entry<K, V>>[] table;
     int size; // current number of items in the table (not number of buckets)
     private int capacity;
-    float userMaxLoadFactor;
+    float maxLoadFactor;
 
     MyHashMap(int capacity, float maxLoadFactor) {
-	this.userMaxLoadFactor = maxLoadFactor;
+	this.maxLoadFactor = maxLoadFactor;
 	this.capacity = capacity;
 	table = (LinkedList<Map.Entry<K, V>>[]) new LinkedList[capacity]; // capacity is the number of buckets
 	for (int i = 0; i < table.length; i++) {
@@ -32,8 +31,7 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
 	if (value == null || key == null) { // if value or key is null, throw exception
 	    throw new NullPointerException();
 	}
-	int hashKey = Math.abs(key.hashCode()) % capacity;
-	System.out.print(hashKey);
+	int hashKey = hash(key);
 	for (Map.Entry<K, V> entries : table[hashKey]) {
 	    if (entries.getKey().equals(key)) {
 		keyPresent = true;// if key is present
@@ -44,11 +42,12 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
 	    table[hashKey].add(new AbstractMap.SimpleEntry<K, V>(key, value)); // create new node for key and value pair
 	    size++; // increment size
 	}
-	if ((size / capacity) > userMaxLoadFactor) {
-	    System.out.println("Resize");
+
+	// TODO write resize when maxLoadFactor is met
+	float currentLoadFactor = (float) size / capacity;
+	if (currentLoadFactor > maxLoadFactor) {
 	    resize();
 	}
-	// TODO write resize when maxLoadFactor is met
 
 	return retValue; // return original value; null if key is not present
 
@@ -57,7 +56,7 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
     public V get(K key) {
 	// TODO Auto-generated method stub
 	V retValue = null;
-	int hashKey = Math.abs(key.hashCode()) % capacity;
+	int hashKey = hash(key);
 	for (Map.Entry<K, V> entries : table[hashKey]) {
 	    if (entries.getKey().equals(key)) { // check if key is present
 		retValue = entries.getValue(); // get original value
@@ -90,15 +89,16 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
     public String toString() {
 	String s;
 	List<String> toStringList = new ArrayList<String>();
+	toStringList.add("");
 	for (int i = 0; i < table.length; i++) {
 	    if (table[i] != null) {
 		for (Map.Entry<K, V> entries : table[i]) {
-		    s = "Hash code: " + i + " | Keys: " + entries.getKey() + " | Value: " + entries.getValue();
+		    s = "Hash code: " + i + " | Keys: " + entries.getKey() + " | Value: " + entries.getValue() + "\n";
 		    toStringList.add(s);
 		}
 	    }
 	}
-	return toStringList.toString();
+	return toStringList.toString().replace(",", "").replace("[", "").replace("]", "");
     }
 
     public Iterator<K> keys() {
@@ -118,7 +118,7 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
 	}
     }
 
-    public Iterator<Entry<K, V>> entries() {
+    public Iterator<Map.Entry<K, V>> entries() {
 	List<Map.Entry<K, V>> l = new LinkedList<Map.Entry<K, V>>();
 	addEntriesToList(l);
 	return l.iterator();
@@ -138,10 +138,13 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
     private void resize() {
 	this.capacity = generatePrime(capacity);
 	LinkedList<Map.Entry<K, V>>[] newTable = (LinkedList<Map.Entry<K, V>>[]) new LinkedList[capacity];
+	for (int i = 0; i < newTable.length; i++) {
+	    newTable[i] = new LinkedList<Map.Entry<K, V>>();
+	}
 	for (int i = 0; i < table.length; i++) {
 	    if (!table[i].isEmpty()) {
 		for (Map.Entry<K, V> entries : table[i]) {
-		    int newHashKey = Math.abs(entries.getKey().hashCode()) % size;
+		    int newHashKey = hash(entries.getKey());
 		    newTable[newHashKey].add(new AbstractMap.SimpleEntry<K, V>(entries.getKey(), entries.getValue()));
 		}
 	    }
@@ -150,18 +153,22 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
 
     }
 
-    public int generatePrime(int i) {
-	int testPrime = 0;
-	int prime = 2 * i;
-	while (testPrime < 2) {
-	    System.out.println("in loop");
-	    for (int j = 2; j < prime; j++) {
-		if (prime % j == 0) {
-		    testPrime = 1;b 
-		}
+    private int generatePrime(int i) {
+	int result = 0;
+	int[] primeList = new int[] { 11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717, 51437, 102877,
+		205759, 411527, 823117, 1646237, 3292489, 6584983, 13169977, 26339969, 52679969, 105359939, 210719881,
+		421439783, 842879579, 1685759167 };
+	for (int compare : primeList) {
+	    if (compare > 2 * i) {
+		result = compare;
+		break;
 	    }
-	    prime++;
 	}
-	return prime;
+	return result;
+    }
+
+    private int hash(K key) {
+	int hashKey = Math.abs(key.hashCode()) % capacity;
+	return hashKey;
     }
 }

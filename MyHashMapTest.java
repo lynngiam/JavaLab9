@@ -26,7 +26,7 @@ public class MyHashMapTest {
 	    assertTrue(standard.containsKey(itKeys.next()));
 	}
 	// if put() method replaces an existing value
-	test.put("D", 5);
+	assertEquals("Returned value: ", 4, (int) test.put("D", 5));
 	standard.put("D", 5);
 	assertEquals("Changed value: ", standard.get("D"), test.get("D"));
 

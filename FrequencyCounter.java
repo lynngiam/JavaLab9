@@ -6,9 +6,15 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class FrequencyCounter {
-
+//    public static MyHashMap<StringBuffer, StringBuffer> generateMap (int k, String file){
+//	//TODO: Implement this.
+//    }
+//    
+//    public static String fileName() {
+//	//TODO: Implement this.
+//    }
 	public static void main(String[] args) {
-		Map<StringBuffer, StringBuffer> mMap = new MyHashMap<StringBuffer, StringBuffer>();
+		MyHashMap<String, StringBuffer> mMap = new MyHashMap<String, StringBuffer>();
 		int k  = Integer.parseInt(args[0]);
 		System.out.print("Enter your file name: ");
 		Scanner input = new Scanner(System.in);
@@ -21,19 +27,20 @@ public class FrequencyCounter {
 			FileReader reader = new FileReader(inputFileName);
 			// TODO: add exception handling for k values larger than string length.
 			for (int i = 0; i < k; i++) {
-				key.append(reader.read());
+				key.append((char)reader.read());
 			}
 			
 			while ((nextChar = reader.read()) != -1) {
 				char currentChar = (char) nextChar;
-				if (mMap.get(key) == null) {
+
+				String keyString = key.toString();
+				if (mMap.get(keyString) == null) {
 					StringBuffer value = new StringBuffer();
 					value.append(currentChar);
-					mMap.put(key, value);
+					mMap.put(keyString, value);
 				} else {
-					mMap.get(key).append(currentChar);
+					mMap.get(keyString).append(currentChar);
 				}
-				
 				// Update key by removing the first char and adding new char.
 				key.deleteCharAt(0);
 				key.append(currentChar);
@@ -45,10 +52,10 @@ public class FrequencyCounter {
 					": " + e.getMessage());
 		}
 		
-		System.out.println(mMap.size() + "distinct keys:");
-		Iterator<Map.Entry<StringBuffer, StringBuffer>> it = mMap.entries();
+		System.out.println(mMap.size() + " distinct keys:");
+		Iterator<Map.Entry<String, StringBuffer>> it = mMap.entries();
 		while (it.hasNext()) {
-			Map.Entry<StringBuffer, StringBuffer> entry = it.next();
+			Map.Entry<String, StringBuffer> entry = it.next();
 			StringBuffer values = entry.getValue();
 			System.out.println(values.length() + " " + entry.getKey());			
 		}

@@ -35,6 +35,7 @@ public class MyHashMap<K, V> implements MapADT<K, V> {
 	for (Map.Entry<K, V> entries : table[hashKey]) {
 	    if (entries.getKey().equals(key)) {
 		keyPresent = true;// if key is present
+		retValue = entries.getValue();
 		entries.setValue(value);
 	    } // set new value
 	}

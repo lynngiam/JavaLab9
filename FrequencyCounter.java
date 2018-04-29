@@ -1,68 +1,60 @@
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.Random;
 
-public class FrequencyCounter {
+public class TextGenerator {
 
-    public static MyHashMap<String, StringBuffer> generateMap(int k, String file) {
-	MyHashMap<String, StringBuffer> mMap = new MyHashMap<String, StringBuffer>();
+    public static void main(String[] args) throws FileNotFoundException {
+	// TODO Auto-generated method stub
+	// @@@@ added reading from the command line.
+	// @@@@ Changed variable String fileName to String file to comply with the lab
+	// instructions.
+	int k = Integer.parseInt(args[0]);
+	int M = Integer.parseInt(args[1]);
+	String file = args[2];
 
-	int nextChar;
-	StringBuffer key = new StringBuffer();
+	// @@@@ file becomes fileReader.
 	try {
-	    FileReader reader = new FileReader(file);
-	    // TODO: add exception handling for k values larger than string length.
-	    for (int i = 0; i < k; i++) {
-		key.append((char) reader.read());
-		if (key.charAt(key.length() - 1) == (char) -1) {
-		    System.err.println("k exceeds file string length.");
-		    break;
-		}
+	    FileReader fileReader = new FileReader(file);
+
+	    MyHashMap<String, StringBuffer> mMap = FrequencyCounter.generateMap(k, file);
+	    StringBuffer starter = new StringBuffer();
+	    for (int j = 0; j < k; j++) {
+
+		// @@@@ added (char) to convert int to char.
+		starter.append((char) fileReader.read());
 	    }
 
-	    while ((nextChar = reader.read()) != -1) {
-		char currentChar = (char) nextChar;
+	    String key = starter.toString();
+	    // ???? I don't understand what output is for.
+	    // @@@@ changed this while loop to if block because the console is printing
+	    // floppyflopp floppyflopp for M = 10.
+	    if (mMap.get(key) != null) {
+		int wordLength = k;
+		while (wordLength < M) {
+		    if (mMap.get(key) == null) {
+			break;
+		    }
+		    StringBuffer sChars = mMap.get(key);
+		    Random rand = new Random();
+		    int randomIndex = rand.nextInt(sChars.length());
+		    starter.append(sChars.charAt(randomIndex));
+		    wordLength++;
 
-		String keyString = key.toString();
-		if (mMap.get(keyString) == null) {
-		    StringBuffer value = new StringBuffer();
-		    value.append(currentChar);
-		    mMap.put(keyString, value);
-		} else {
-		    mMap.get(keyString).append(currentChar);
+		    // @@@@ Changed this from (wordLength - k, wordLength) to (wordLength - k).
+		    key = starter.substring(wordLength - k);
 		}
-		// Update key by removing the first char and adding new char.
-		key.deleteCharAt(0);
-		key.append(currentChar);
+		System.out.print(starter + " ");
+
 	    }
+	    System.out.println();
 	} catch (FileNotFoundException e) {
 	    System.err.println(file + " is not found.");
+	    System.exit(2);
 	} catch (IOException e) {
 	    System.err.println("Error reading from file " + file + ": " + e.getMessage());
-	}
-
-	return mMap;
-    }
-
-
-    public static void main(String[] args) {
-	int k = Integer.parseInt(args[0]);
-	System.out.print("Enter your file name: ");
-	Scanner input = new Scanner(System.in);
-	String inputFileName = input.next();
-
-	MyHashMap<String, StringBuffer> mMap = generateMap(k, inputFileName);
-
-	System.out.println(mMap.size() + " distinct keys");
-	Iterator<Map.Entry<String, StringBuffer>> it = mMap.entries();
-	while (it.hasNext()) {
-	    Map.Entry<String, StringBuffer> entry = it.next();
-	    StringBuffer values = entry.getValue();
-	    System.out.println(values.length() + " " + entry.getKey());
+	    System.exit(4);
 	}
     }
-
 }
